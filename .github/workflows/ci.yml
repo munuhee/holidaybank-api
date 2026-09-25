@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: holidaybank
+          POSTGRES_USER: holidaybank
+          POSTGRES_PASSWORD: holidaybank
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U holidaybank" --health-interval 5s --health-retries 10
+    env:
+      DJANGO_DEBUG: "true"
+      DATABASE_URL: postgresql://holidaybank:holidaybank@localhost:5432/holidaybank
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python manage.py check
+      - run: python manage.py makemigrations --check --dry-run
+      - run: python manage.py test tests

@@ -43,6 +43,35 @@ docker compose --env-file .env.docker up --build
 docker compose --env-file .env.docker exec api python manage.py seed
 ```
 
+### On Railway
+
+`railway.json` builds the `Dockerfile` and waits for `/api/health` before switching traffic.
+
+1. New project from this GitHub repo, then add a PostgreSQL database to the project.
+2. Add a volume to the API service mounted at `/app/uploads`, so dashboard uploads survive deploys.
+3. Set the service variables:
+
+   ```
+   DJANGO_DEBUG=false
+   DJANGO_SECRET_KEY=<random>
+   JWT_SECRET=<random>
+   REVALIDATE_SECRET=<random, same value on Netlify>
+   DATABASE_URL=${{Postgres.DATABASE_URL}}
+   DJANGO_ALLOWED_HOSTS=<service>.up.railway.app,healthcheck.railway.app
+   PUBLIC_API_URL=https://<service>.up.railway.app
+   WEB_ORIGIN=https://holidaybank.netlify.app
+   REVALIDATE_URL=https://holidaybank.netlify.app/api/revalidate
+   ADMIN_EMAIL=<email>
+   ADMIN_PASSWORD=<12+ characters>
+   RAILWAY_RUN_UID=0
+   WEB_CONCURRENCY=2
+   ```
+
+   `RAILWAY_RUN_UID=0` lets the container write to the volume, which Railway mounts as root.
+   `healthcheck.railway.app` is the host Railway's health check sends.
+4. Generate a domain under Settings → Networking, then seed once: `railway ssh` and
+   `python manage.py seed`. Migrations run on every start.
+
 ### Tests
 
 ```bash

@@ -35,7 +35,7 @@ Then start the web app (see its README). `REVALIDATE_SECRET` must match in both 
 ### With Docker
 
 `docker-compose.yml` runs PostgreSQL 16, this API under gunicorn and the built Next.js site. It
-expects the web repo checked out next to this one as `../frontend`.
+expects the web repo checked out next to this one as `../holidaybank-web`.
 
 ```bash
 cp .env.docker.example .env.docker    # fill in the secrets

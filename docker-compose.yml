@@ -1,5 +1,5 @@
 # Full stack: PostgreSQL, the Django API and the Next.js site.
-# Expects the web repo checked out next to this one, as ../frontend.
+# Expects the web repo checked out next to this one, as ../holidaybank-web.
 #
 #   cp .env.docker.example .env.docker   # then fill in the secrets
 #   docker compose --env-file .env.docker up --build
@@ -46,7 +46,7 @@ services:
 
   web:
     build:
-      context: ../frontend
+      context: ../holidaybank-web
       args:
         NEXT_PUBLIC_API_URL: http://localhost:8000
         NEXT_PUBLIC_SITE_URL: http://localhost:3000

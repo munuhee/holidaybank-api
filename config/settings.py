@@ -36,6 +36,10 @@ if IS_PRODUCTION and SECRET_KEY.startswith('dev-only'):
     raise RuntimeError('DJANGO_SECRET_KEY is still the development placeholder. Set a real secret.')
 
 ALLOWED_HOSTS = env_list('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1')
+# Railway sets these at runtime: the generated public domain, and the host its
+# health check sends.
+if env('RAILWAY_PUBLIC_DOMAIN'):
+    ALLOWED_HOSTS += [env('RAILWAY_PUBLIC_DOMAIN'), 'healthcheck.railway.app']
 
 # ---------------------------------------------------------------------------
 # Applications
@@ -149,7 +153,8 @@ REVALIDATE_SECRET = env('REVALIDATE_SECRET', '')
 REVALIDATE_URL = env('REVALIDATE_URL', f'{WEB_ORIGIN}/api/revalidate')
 
 # This service's public origin, baked into uploaded-image URLs.
-PUBLIC_API_URL = (env('PUBLIC_API_URL', 'http://localhost:8000') or '').rstrip('/')
+_railway_url = f'https://{env("RAILWAY_PUBLIC_DOMAIN")}' if env('RAILWAY_PUBLIC_DOMAIN') else None
+PUBLIC_API_URL = (env('PUBLIC_API_URL', _railway_url or 'http://localhost:8000') or '').rstrip('/')
 
 # ---------------------------------------------------------------------------
 # REST framework
